@@ -1,8 +1,6 @@
-from cmath import log
 from nonebot.matcher import Matcher
 from nonebot import on_command
 from nonebot.params import CommandArg
-from nonebot.typing import T_State
 from nonebot.adapters.onebot.v11 import (
     GroupMessageEvent,
     Message,
@@ -24,10 +22,9 @@ __plugin_meta__ = PluginMetadata(
     usage：
     用图片描述+图片风格生成图片
     指令：
-        以文生图 图片风格 图片尺寸(非必填，默认长图) 图片描述
+        以文生图 图片风格  图片描述
     图片描述请不要带空格！      
-    风格可以是：油画、水彩、二次元、粉笔画、儿童画、蜡笔画、古风、像素风格、蒸汽波艺术、赛博朋克、概念艺术、未来主义、写实风格、超现实主义
-    尺寸可以是：方图(默认)、长图、横图
+    风格可以是：油画、水彩、二次元、粉笔画、儿童画、蜡笔画、 卡通、古风、像素风格、蒸汽波艺术、赛博朋克、概念艺术、未来主义、写实风格、超现实主义
     """,
     extra={"author": "hamo-reid", "menu_template": "default"},
 )
@@ -42,7 +39,7 @@ styleList = [
     "粉笔画",
     "儿童画",
     "蜡笔画",
-    "古风",
+    "卡通",
     "像素风格",
     "蒸汽波艺术",
     "赛博朋克",
@@ -55,7 +52,7 @@ styleList = [
 ]
 
 
-tips = "请输入正确的格式：以文生图 图片风格 图片描述\n风格可以是：油画、水彩、卡通、粉笔画、儿童画、蜡笔画"
+tips = "请输入正确的格式：以文生图 图片风格 图片描述\n风格可以是：二次元、水彩、卡通、粉笔画、儿童画、蜡笔画"
 
 pic = on_command("以文生图", aliases={"生成图片"}, priority=5, block=True)
 
@@ -64,10 +61,10 @@ pic = on_command("以文生图", aliases={"生成图片"}, priority=5, block=Tru
 async def printImg(
     bot: Bot,
     event: MessageEvent,
-    state: T_State,
     msg: Message = CommandArg(),
 ):
     msg = msg.extract_plain_text().strip().split()
+    logger.info(msg)
     style = msg[0]
     if len(msg) < 2:
         await pic.finish(tips)
@@ -80,7 +77,7 @@ async def printImg(
         try:
             if isinstance(event, PrivateMessageEvent):
                 for msg in imgList:
-                    await pic.send(msg)
+                    await pic.send(MessageSegment.image(msg))
             elif isinstance(event, GroupMessageEvent):
                 msgs = [
                     to_json(MessageSegment.image(msg), "地瓜", bot.self_id)
